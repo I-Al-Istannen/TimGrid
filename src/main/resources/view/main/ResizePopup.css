@@ -1,0 +1,11 @@
+.number-input {
+    -fx-font-family: monospace;
+}
+
+.description {
+    
+}
+
+.grid-pane {
+    -fx-padding: 1em 1em 1em 1em;
+}
