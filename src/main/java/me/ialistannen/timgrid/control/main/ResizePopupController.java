@@ -1,13 +1,11 @@
 package me.ialistannen.timgrid.control.main;
 
 import java.util.OptionalInt;
-import java.util.function.Supplier;
 
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 
 /**
  * The Controller for the Resize popup
@@ -27,31 +25,23 @@ public class ResizePopupController {
         width.setEditable(true);
         height.setEditable(true);
 
-        width.getEditor().textProperty().addListener(getChangeListener(() -> width, () -> width.getEditor()));
-        height.getEditor().textProperty().addListener(getChangeListener(() -> height, () -> height.getEditor()));
+        width.getEditor().setTextFormatter(getFormatter());
+        height.getEditor().setTextFormatter(getFormatter());
     }
 
-    private ChangeListener<String> getChangeListener(Supplier<Spinner<Integer>> spinnerSupplier,
-                                                     Supplier<TextField> fieldSupplier) {
-        return (observable, oldValue, newValue) -> {
-            OptionalInt parsed = parseInt(newValue);
+    private TextFormatter<String> getFormatter() {
+        return new TextFormatter<>(change -> {
+            OptionalInt parsed = parseInt(change.getControlNewText());
             if (!parsed.isPresent()) {
-                fieldSupplier.get().setText(oldValue);
-                return;
+                return null;
             }
-            if (parsed.getAsInt() < 1) {
-                fieldSupplier.get().setText("1");
-                return;
-            }
-
-            spinnerSupplier.get().getValueFactory().setValue(parsed.getAsInt());
-        };
+            return change;
+        });
     }
 
     private OptionalInt parseInt(String string) {
         try {
-            int i = Integer.parseInt(string);
-            return OptionalInt.of(i);
+            return OptionalInt.of(Integer.parseInt(string));
         } catch (NumberFormatException e) {
             return OptionalInt.empty();
         }

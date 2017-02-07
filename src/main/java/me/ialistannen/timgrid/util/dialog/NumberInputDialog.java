@@ -4,6 +4,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextFormatter;
 
 /**
  * A dialog to accept a number
@@ -27,15 +28,15 @@ public class NumberInputDialog <T extends Number> extends Dialog<T> {
     public NumberInputDialog(SpinnerValueFactory<T> factory, T defaultValue) {
         numberInput = new Spinner<>(factory);
         numberInput.setEditable(true);
-        
-        numberInput.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+
+        numberInput.getEditor().setTextFormatter(new TextFormatter<Integer>(change -> {
             try {
-                T parsed = factory.getConverter().fromString(newValue);
-                numberInput.getValueFactory().setValue(parsed);
+                factory.getConverter().fromString(change.getControlNewText());
+                return change;
             } catch (RuntimeException e) {
-                numberInput.getEditor().setText(oldValue);
+                return null;
             }
-        });
+        }));
 
         if (defaultValue != null) {
             numberInput.getValueFactory().setValue(defaultValue);
