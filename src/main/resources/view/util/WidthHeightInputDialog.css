@@ -1,0 +1,27 @@
+.heading {
+    -fx-font-family: "Book Antiqua", Garamond, serif;
+    -fx-font-size: 2em;
+    -fx-font-style: italic;
+}
+
+.background-pane {
+    -fx-background-color: royalblue;
+}
+
+.description {
+    -fx-font-size: 1.2em;
+    -fx-font-family: serif;
+}
+
+.spinner > .text-field {
+    -fx-background-color: cornflowerblue;
+}
+
+.spinner > .text-field:focused {
+    -fx-background-color: rgba(100, 149, 237, 0.66);
+}
+
+.spinner > .increment-arrow-button, .spinner > .decrement-arrow-button {
+/*    -fx-background-color: #6ba1ff; */
+    -fx-effect: innershadow(gaussian, #6ba1ff, 1, 100, 0, 0);
+}

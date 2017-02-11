@@ -1,0 +1,12 @@
+AnchorPane {
+    -fx-border-color: RoyalBlue;
+    -fx-border-width: 1em;
+}
+
+.grid {
+    grid-color: black;
+}
+
+.grid, ScrollPane {
+    -fx-background-color: transparent;
+}

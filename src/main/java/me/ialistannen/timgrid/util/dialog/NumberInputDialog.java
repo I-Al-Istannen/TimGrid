@@ -1,5 +1,7 @@
 package me.ialistannen.timgrid.util.dialog;
 
+import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Spinner;
@@ -29,6 +31,17 @@ public class NumberInputDialog <T extends Number> extends Dialog<T> {
         numberInput = new Spinner<>(factory);
         numberInput.setEditable(true);
 
+        numberInput.getEditor().setOnAction(event -> {
+            // let the input field fire the button
+            for (ButtonType buttonType : getDialogPane().getButtonTypes()) {
+                if (buttonType == ButtonType.OK) {
+                    Button button = (Button) getDialogPane().lookupButton(buttonType);
+                    button.fire();
+                    return;
+                }
+            }
+        });
+
         numberInput.getEditor().setTextFormatter(new TextFormatter<Integer>(change -> {
             try {
                 factory.getConverter().fromString(change.getControlNewText());
@@ -47,12 +60,23 @@ public class NumberInputDialog <T extends Number> extends Dialog<T> {
                 return null;
             }
 
-            return numberInput.getValue();
+            return numberInput.getValueFactory().getConverter().fromString(numberInput.getEditor().getText());
         });
 
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         getDialogPane().setContent(numberInput);
 
-        setOnShown(event -> numberInput.requestFocus());
+        numberInput.requestFocus();
+
+        numberInput.getEditor().focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                // YAY... You know, we need to modify it AFTER it gained focus
+                Platform.runLater(() ->
+                        numberInput.getEditor().positionCaret(numberInput.getEditor().getText().length())
+                );
+            }
+        });
+        // YAY... You know, we need to modify it AFTER it was shown...
+        setOnShown(event -> Platform.runLater(numberInput::requestFocus));
     }
 }

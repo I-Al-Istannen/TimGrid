@@ -3,9 +3,13 @@ package me.ialistannen.timgrid.util;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.imgscalr.Scalr;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -62,5 +66,73 @@ public class Util {
         PrintWriter printWriter = new PrintWriter(stringWriter);
         throwable.printStackTrace(printWriter);
         return stringWriter.toString();
+    }
+
+    /**
+     * Runs a runnable later, blocking until it was run
+     *
+     * @param callable The {@link Callable} to execute
+     * @param <V> The type of the return value from the {@link Callable}
+     *
+     * @return The return value of the {@link Callable}
+     *
+     * @throws RuntimeException wrapping any exception that might occur
+     */
+    public static <V> V runLaterBlocking(Callable<V> callable) {
+        try {
+            if (Platform.isFxApplicationThread()) {
+                return callable.call();
+            }
+            Semaphore semaphore = new Semaphore(1);
+            AtomicReference<V> value = new AtomicReference<>();
+            runLaterUnchecked(() -> {
+                value.set(callable.call());
+                semaphore.release();
+            });
+
+            semaphore.acquire();
+
+            return value.get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Runs the Runnable on the FX application thread
+     *
+     * @param runnable The {@link UncheckedRunnable} to run
+     */
+    public static void runLaterUnchecked(UncheckedRunnable runnable) {
+        if (Platform.isFxApplicationThread()) {
+            runnable.run();
+            return;
+        }
+
+        Platform.runLater(runnable);
+    }
+
+    /**
+     * An unchecked {@link Runnable}
+     */
+    @FunctionalInterface
+    public interface UncheckedRunnable extends Runnable {
+
+        @Override
+        default void run() {
+            try {
+                runIt();
+            } catch (Throwable throwable) {
+                throw new RuntimeException(throwable);
+            }
+        }
+
+        /**
+         * Runs this runnable
+         *
+         * @throws Throwable Any exception you might throw
+         */
+        void runIt() throws Throwable;
     }
 }
