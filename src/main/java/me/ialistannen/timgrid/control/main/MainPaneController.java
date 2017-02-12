@@ -199,6 +199,15 @@ public class MainPaneController {
         }
 
         {
+            JsonObject gridMeta = new JsonObject();
+            gridMeta.addProperty("width", grid.getWidth());
+            gridMeta.addProperty("height", grid.getHeight());
+            gridMeta.addProperty("grid-width", grid.getGridWidth());
+            gridMeta.addProperty("grid-height", grid.getGridHeight());
+            root.add("grid-meta", gridMeta);
+        }
+
+        {
             JsonArray array = new JsonArray();
             for (Entry<Point2D, Node> entry : grid.getNodesWithGridPosition().entrySet()) {
                 if (!(entry.getValue() instanceof ImageView)) {
@@ -268,6 +277,17 @@ public class MainPaneController {
             for (JsonElement image : root.get("images").getAsJsonArray()) {
                 Image loaded = imageSaver.load(image.getAsString());
                 imageList.getItems().add(loaded);
+            }
+
+            {
+                JsonObject gridMeta = root.get("grid-meta").getAsJsonObject();
+                int width = gridMeta.get("width").getAsInt();
+                int height = gridMeta.get("height").getAsInt();
+                int gridWidth = gridMeta.get("grid-width").getAsInt();
+                int gridHeight = gridMeta.get("grid-height").getAsInt();
+
+                grid.setGridSize(gridWidth, gridHeight);
+                grid.setSize(width, height);
             }
 
             for (JsonElement element : root.get("grid").getAsJsonArray()) {

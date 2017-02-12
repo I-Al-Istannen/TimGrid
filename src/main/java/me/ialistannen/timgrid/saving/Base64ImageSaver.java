@@ -19,11 +19,11 @@ import javax.imageio.ImageIO;
  */
 public class Base64ImageSaver implements ImageSaver {
 
-    private static Base64.Decoder DECODER = Base64.getDecoder();
-    private static Base64.Encoder ENCODER = Base64.getEncoder();
+    private static final Base64.Decoder DECODER = Base64.getDecoder();
+    private static final Base64.Encoder ENCODER = Base64.getEncoder();
 
-    private Map<BufferedImage, String> cache = new HashMap<>();
-    private Map<String, BufferedImage> stringToImageCache = new HashMap<>();
+    private final Map<BufferedImage, String> cache = new HashMap<>();
+    private final Map<String, BufferedImage> stringToImageCache = new HashMap<>();
 
     /**
      * Clears any cache you might have built

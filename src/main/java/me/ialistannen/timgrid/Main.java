@@ -3,6 +3,7 @@ package me.ialistannen.timgrid;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -29,6 +30,10 @@ public class Main extends Application {
 
         primaryStage.setScene(scene);
 
+        primaryStage.setTitle("Hey, I am a title!");
+        primaryStage.getIcons().add(new Image(
+                getClass().getResourceAsStream("/images/icon.png")
+        ));
         primaryStage.show();
     }
 
