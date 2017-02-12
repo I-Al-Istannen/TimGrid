@@ -15,6 +15,8 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SpinnerValueFactory.DoubleSpinnerValueFactory;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,6 +24,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
@@ -89,7 +93,10 @@ public class GridAnchorPane extends AnchorPane {
                 }
             }
 
-            Point2D nearestGridKnot = getNearestGridKnot(event.getX() + offsetX, event.getY() + offsetY);
+            double y = event.getY() + offsetY;
+            double x = event.getX() + offsetX;
+
+            Point2D nearestGridKnot = getNearestGridKnot(x, y);
             node.setTranslateX(nearestGridKnot.getX());
             node.setTranslateY(nearestGridKnot.getY());
         });
@@ -100,11 +107,16 @@ public class GridAnchorPane extends AnchorPane {
                 for (Node node : c.getAddedSubList()) {
                     node.setOnDragDetected(getDragDetectedHandler());
                     node.setOnContextMenuRequested(getContextMenuRequestedHandler());
+                    node.setOnKeyPressed(getKeyPressMoveHandler());
+                    node.setOnMouseClicked(event -> node.requestFocus());
                 }
             }
         });
     }
 
+    /**
+     * @return The handler creating the context menu for each node
+     */
     private EventHandler<ContextMenuEvent> getContextMenuRequestedHandler() {
         return contextMenuEvent -> {
             if (!(contextMenuEvent.getSource() instanceof ImageView)) {
@@ -172,16 +184,31 @@ public class GridAnchorPane extends AnchorPane {
                 });
             });
 
+            MenuItem dividerResize = new SeparatorMenuItem();
+
+            MenuItem rotate = new MenuItem("Rotate");
+            rotate.setOnAction(event -> {
+                double current = node.getRotate();
+                NumberInputDialog<Double> rotationDialog = new NumberInputDialog<>(
+                        new DoubleSpinnerValueFactory(0, Double.MAX_VALUE, current)
+                );
+                rotationDialog.showAndWait().ifPresent(node::setRotate);
+            });
 
             ContextMenu contextMenu = new ContextMenu(
                     resizeWidthItem, resizeHeightItem,
                     resizeSquare,
-                    resizeKeepRatioWidth, resizeKeepRatioHeight
+                    resizeKeepRatioWidth, resizeKeepRatioHeight,
+                    dividerResize,
+                    rotate
             );
             contextMenu.show(node, Side.TOP, contextMenuEvent.getX(), contextMenuEvent.getY());
         };
     }
 
+    /**
+     * @return The Handler that accepts drag events and supplies the offset as metadata
+     */
     private EventHandler<MouseEvent> getDragDetectedHandler() {
         return event -> {
             Object source = event.getSource();
@@ -193,13 +220,66 @@ public class GridAnchorPane extends AnchorPane {
             Dragboard dragboard = node.startDragAndDrop(TransferMode.MOVE);
 
             WritableImage snapshot = node.snapshot(null, null);
-            dragboard.setDragView(snapshot, event.getX(), event.getY());
+
+            double xOffset = event.getX();
+            double yOffset = event.getY();
+
+            Point2D offset = new Point2D(xOffset, yOffset);
+
+            dragboard.setDragView(snapshot, offset.getX(), offset.getY());
 
             ClipboardContent clipboardContent = new ClipboardContent();
-            clipboardContent.putString(event.getX() + "!-->!" + event.getY());
+
+            clipboardContent.putString(offset.getX() + "!-->!" + offset.getY());
             dragboard.setContent(clipboardContent);
 
             event.consume();
+        };
+    }
+
+    /**
+     * @return The key press handler that moves the node on the screen, if the user uses WASD
+     */
+    private EventHandler<? super KeyEvent> getKeyPressMoveHandler() {
+        return event -> {
+            Object source = event.getSource();
+            if (!(source instanceof Node)) {
+                return;
+            }
+
+            Node node = (Node) source;
+            double modX = 0;
+            double modY = 0;
+            if (event.getCode() == KeyCode.A) {
+                modX = -gridWidth;
+            }
+            else if (event.getCode() == KeyCode.D) {
+                modX = gridWidth;
+            }
+            else if (event.getCode() == KeyCode.W) {
+                modY = -gridHeight;
+            }
+            else if (event.getCode() == KeyCode.S) {
+                modY = gridHeight;
+            }
+
+            if (event.isControlDown()) {
+                modX *= 2;
+                modY *= 2;
+            }
+
+            Bounds boundsInParent = node.getBoundsInParent();
+            Bounds newBounds = new BoundingBox(
+                    modX + boundsInParent.getMinX(), modY + boundsInParent.getMinY(),
+                    boundsInParent.getWidth(), boundsInParent.getHeight()
+            );
+
+            if (!getLayoutBounds().contains(newBounds)) {
+                return;
+            }
+
+            node.setTranslateX(node.getTranslateX() + modX);
+            node.setTranslateY(node.getTranslateY() + modY);
         };
     }
 
