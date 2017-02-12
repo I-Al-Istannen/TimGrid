@@ -23,10 +23,21 @@
    <top>
        <MenuBar BorderPane.alignment="CENTER">
          <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onSave" text="Save" />
+                  <MenuItem mnemonicParsing="false" onAction="#onLoad" text="Load" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="Grid operations">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#onResizeGridCellSize" text="Resize grid cell size" />
                   <MenuItem mnemonicParsing="false" onAction="#onResizeGridSize" text="Resize grid size" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="List operations">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onLoadImage" text="Load image" />
               </items>
             </Menu>
          </menus></MenuBar>

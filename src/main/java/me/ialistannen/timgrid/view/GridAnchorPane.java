@@ -107,7 +107,7 @@ public class GridAnchorPane extends AnchorPane {
                 for (Node node : c.getAddedSubList()) {
                     node.setOnDragDetected(getDragDetectedHandler());
                     node.setOnContextMenuRequested(getContextMenuRequestedHandler());
-                    node.setOnKeyPressed(getKeyPressMoveHandler());
+                    node.setOnKeyPressed(getChildKeyHandler());
                     node.setOnMouseClicked(event -> node.requestFocus());
                 }
             }
@@ -184,8 +184,6 @@ public class GridAnchorPane extends AnchorPane {
                 });
             });
 
-            MenuItem dividerResize = new SeparatorMenuItem();
-
             MenuItem rotate = new MenuItem("Rotate");
             rotate.setOnAction(event -> {
                 double current = node.getRotate();
@@ -195,12 +193,17 @@ public class GridAnchorPane extends AnchorPane {
                 rotationDialog.showAndWait().ifPresent(node::setRotate);
             });
 
+            MenuItem delete = new MenuItem("Delete");
+            delete.setOnAction(event -> getChildren().remove(node));
+
             ContextMenu contextMenu = new ContextMenu(
                     resizeWidthItem, resizeHeightItem,
                     resizeSquare,
                     resizeKeepRatioWidth, resizeKeepRatioHeight,
-                    dividerResize,
-                    rotate
+                    new SeparatorMenuItem(),
+                    rotate,
+                    new SeparatorMenuItem(),
+                    delete
             );
             contextMenu.show(node, Side.TOP, contextMenuEvent.getX(), contextMenuEvent.getY());
         };
@@ -238,9 +241,9 @@ public class GridAnchorPane extends AnchorPane {
     }
 
     /**
-     * @return The key press handler that moves the node on the screen, if the user uses WASD
+     * @return The key press handler that moves the node on the screen, if the user uses WASD and deletes it
      */
-    private EventHandler<? super KeyEvent> getKeyPressMoveHandler() {
+    private EventHandler<? super KeyEvent> getChildKeyHandler() {
         return event -> {
             Object source = event.getSource();
             if (!(source instanceof Node)) {
@@ -248,6 +251,12 @@ public class GridAnchorPane extends AnchorPane {
             }
 
             Node node = (Node) source;
+
+            if (event.getCode() == KeyCode.DELETE) {
+                getChildren().remove(node);
+                return;
+            }
+
             double modX = 0;
             double modY = 0;
             if (event.getCode() == KeyCode.A) {
@@ -350,7 +359,12 @@ public class GridAnchorPane extends AnchorPane {
         }
     }
 
-    private Map<Point2D, Node> getNodesWithGridPosition() {
+    /**
+     * Returns all nodes and their position in the grid
+     *
+     * @return The nodes with the position in the grid
+     */
+    public Map<Point2D, Node> getNodesWithGridPosition() {
         return getChildren().stream()
                 .filter(node -> node != gridCanvas)
                 .collect(Collectors.toMap(
@@ -361,6 +375,38 @@ public class GridAnchorPane extends AnchorPane {
                         },
                         Function.identity()
                 ));
+    }
+
+    /**
+     * Clears the grid
+     */
+    public void clear() {
+        getChildren().retainAll(gridCanvas);
+    }
+
+    /**
+     * Adds an image
+     *
+     * @param image The Image to add
+     * @param x The x position of the image
+     * @param y The x position of the image
+     * @param rotation The rotation of the image
+     * @param width The width of the image
+     * @param height The height of the image
+     */
+    public void setImage(Image image, int x, int y, double rotation, double width, double height) {
+        ImageView imageView = new ImageView(image);
+
+        imageView.setTranslateX(getGridWidth() * x);
+        imageView.setTranslateY(getGridHeight() * y);
+        imageView.setRotate(rotation);
+        if (width <= 0 || height <= 0) {
+            imageView.setPreserveRatio(true);
+        }
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(height);
+
+        getChildren().add(imageView);
     }
 
     private Point2D getNearestGridKnot(double x, double y) {
