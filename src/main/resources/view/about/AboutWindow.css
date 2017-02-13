@@ -1,0 +1,37 @@
+.content-text, .link {
+    -fx-font-family: serif;
+    -fx-font-size: 2em;
+    -fx-text-fill: wheat;
+    -fx-effect: dropshadow(gaussian, #000000, 1, 10, 0, 0);
+}
+
+.link {
+    -fx-border-width: 0;
+    -fx-text-fill: royalblue;
+}
+
+.small {
+    -fx-font-size: 1em;
+}
+
+.smaller {
+    -fx-font-size: 1.5em;
+}
+
+.about {
+    -fx-font-family: serif;
+    -fx-font-size: 5em;
+    -fx-text-fill: white;
+}
+
+.container-flow {
+    -fx-text-alignment: center;
+}
+
+.background-container {
+    /*noinspection CssUnknownTarget*/
+    -fx-background-image: url("/images/black_mage_by_raakile-d5w1h9g.jpg");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-size: cover;
+}

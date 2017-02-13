@@ -40,6 +40,11 @@
                 <MenuItem mnemonicParsing="false" onAction="#onLoadImage" text="Load image" />
               </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#onAbout" text="About" />
+              </items>
+            </Menu>
          </menus></MenuBar>
    </top>
 </BorderPane>

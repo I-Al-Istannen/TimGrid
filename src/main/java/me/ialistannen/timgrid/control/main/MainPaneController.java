@@ -20,8 +20,10 @@ import com.google.gson.JsonObject;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ListView;
@@ -30,10 +32,12 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 import me.ialistannen.timgrid.Main;
 import me.ialistannen.timgrid.model.ListImageCell;
@@ -307,6 +311,31 @@ public class MainPaneController {
                     "Error loading the file",
                     "Error loading the file",
                     "An error occurred while loading the file",
+                    e
+            );
+        }
+    }
+
+
+    @FXML
+    void onAbout(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/me/ialistannen/timgrid/view/about/AboutWindow.fxml")
+            );
+            Pane pane = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(pane));
+            
+            stage.setResizable(false);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Util.showError(
+                    "Error loading the about window",
+                    "Error loading the about window",
+                    "An error occurred while loading the about window",
                     e
             );
         }
