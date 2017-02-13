@@ -33,8 +33,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -73,11 +71,6 @@ public class MainPaneController {
             grid = new GridAnchorPane(20, 20);
             grid.setPrefSize(2000, 1000);
 
-            Rectangle rectangle = new Rectangle(50, 50, Color.ROYALBLUE);
-            rectangle.setTranslateX(200);
-            rectangle.setTranslateY(260);
-
-            grid.getChildren().add(rectangle);
             scrollPane.setContent(grid);
         }
 
@@ -111,17 +104,6 @@ public class MainPaneController {
                 imageList.getItems().remove(selectedItem);
             }
         });
-
-        try {
-            imageList.getItems().add(
-                    SwingFXUtils.toFXImage(
-                            ImageIO.read(getClass().getResource("/images/wing.png")),
-                            null
-                    )
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private double getDividerPosition(double width) {
@@ -184,7 +166,7 @@ public class MainPaneController {
     void onSave(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose a save file");
-        fileChooser.getExtensionFilters().add(new ExtensionFilter("A nice save file", "*.nsf"));
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Grid save file", "*.gsf"));
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
 
         File file = fileChooser.showSaveDialog(Main.getInstance().getPrimaryStage());
@@ -259,7 +241,7 @@ public class MainPaneController {
     void onLoad(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose a save file");
-        fileChooser.getExtensionFilters().add(new ExtensionFilter("A nice save file", "*.nsf"));
+        fileChooser.getExtensionFilters().add(new ExtensionFilter("Grid save file", "*.gsf"));
         fileChooser.setSelectedExtensionFilter(fileChooser.getExtensionFilters().get(0));
 
         File file = fileChooser.showOpenDialog(Main.getInstance().getPrimaryStage());
@@ -327,7 +309,7 @@ public class MainPaneController {
 
             Stage stage = new Stage();
             stage.setScene(new Scene(pane));
-            
+
             stage.setResizable(false);
             stage.show();
         } catch (IOException e) {

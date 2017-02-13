@@ -1,5 +1,9 @@
 package me.ialistannen.timgrid;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -30,11 +34,31 @@ public class Main extends Application {
 
         primaryStage.setScene(scene);
 
-        primaryStage.setTitle("Hey, I am a title!");
-        primaryStage.getIcons().add(new Image(
-                getClass().getResourceAsStream("/images/icon.png")
-        ));
+        primaryStage.setTitle("Grid");
+        {
+            List<Image> icons = getIconImages();
+            primaryStage.getIcons().add(
+                    icons.get(ThreadLocalRandom.current().nextInt(icons.size()))
+            );
+        }
         primaryStage.show();
+    }
+
+    private List<Image> getIconImages() {
+        List<Image> list = new ArrayList<>();
+        list.add(getIconImage("icon"));
+        list.add(getIconImage("icon_2"));
+        list.add(getIconImage("icon_3"));
+        list.add(getIconImage("icon_4"));
+        list.add(getIconImage("icon_5"));
+
+        return list;
+    }
+
+    private Image getIconImage(String name) {
+        return new Image(
+                getClass().getResourceAsStream("/images/" + name + ".png")
+        );
     }
 
     public Stage getPrimaryStage() {
